@@ -146,7 +146,7 @@ public class PerformanceStatisticsReportSelfTest {
             assertTrue(dataJs.exists());
         }
         finally {
-            U.delete(new File(U.defaultWorkDirectory()));
+//            U.delete(new File(U.defaultWorkDirectory()));
         }
     }
 

@@ -17,6 +17,7 @@
 
 package org.apache.ignite.internal.performancestatistics.handlers;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -39,6 +40,10 @@ public interface IgnitePerformanceStatisticsHandler extends PerformanceStatistic
 
     /** {@inheritDoc} */
     @Override default void cacheStart(UUID nodeId, int cacheId, String name) {
+        // No-op.
+    }
+
+    default void systemView(UUID id, String name, List<Map<String, String>> data) {
         // No-op.
     }
 
