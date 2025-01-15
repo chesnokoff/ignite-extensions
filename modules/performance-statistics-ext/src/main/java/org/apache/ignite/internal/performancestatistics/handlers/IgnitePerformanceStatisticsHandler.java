@@ -43,7 +43,7 @@ public interface IgnitePerformanceStatisticsHandler extends PerformanceStatistic
         // No-op.
     }
 
-    default void systemView(UUID id, String name, List<Map<String, String>> data) {
+    default void systemView(UUID id, String name, Map<String, String> data) {
         // No-op.
     }
 

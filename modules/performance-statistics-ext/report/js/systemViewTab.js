@@ -15,62 +15,56 @@
  * limitations under the License.
  */
 
-function getUniqueKeys(data) {
+function getUniqueKeys(dataTable) {
     var keys = new Set();
-    data.forEach(function(row) {
+    dataTable.forEach(function(row) {
         Object.keys(row).forEach(function(key) {
             keys.add(key);
         });
     });
+
     return Array.from(keys);
 }
 
-// Функция для генерации столбцов на основе ключей
 function generateColumns(keys) {
     return keys.map(function(key) {
         return {
             field: key,
-            title: key.charAt(0).toUpperCase() + key.slice(1), // Преобразование первой буквы в верхний регистр
+            title: key.charAt(0).toUpperCase() + key.slice(1),
             sortable: true
         };
     });
 }
 
-// Получение div элемента
 var div = document.getElementById('systemViewTab');
 
-// Итерация по объекту REPORT_DATA.systemView
-Object.keys(REPORT_DATA.systemView).forEach(function(view) {
-    var data = REPORT_DATA.systemView[view];
+Object.keys(REPORT_DATA.systemView).forEach(function(nodeId) {
+    var nodeData = REPORT_DATA.systemView[nodeId];
 
-    // Создание элемента <h2>
-    var heading = document.createElement('h2');
-    heading.className = 'mt-4'; // Добавление класса
-    heading.textContent = view; // Установка текста
+    Object.keys(nodeData).forEach(function(viewName) {
+        var data = nodeData[viewName];
 
-    // Добавление элемента <h2> в div
-    div.appendChild(heading);
+        var heading = document.createElement('h2');
+        heading.className = 'mt-4';
+        heading.textContent = viewName + ' - ' + nodeId;
 
-    // Получение уникальных ключей
-    var uniqueKeys = getUniqueKeys(data);
-    console.log(uniqueKeys);
+        div.appendChild(heading);
 
-    // Генерация столбцов
-    var columns = generateColumns(uniqueKeys);
-    console.log(columns);
+        var uniqueKeys = getUniqueKeys(data);
 
-    // Создание таблицы и добавление её в div
-    var table = document.createElement('table');
-    table.id = view; // Используем ключ view как идентификатор таблицы
-    div.appendChild(table);
+        var columns = generateColumns(uniqueKeys);
 
-    // Инициализация таблицы
-    $('#' + view).bootstrapTable({
-        pagination: true,
-        search: true,
-        columns: columns,
-        data: data,
-        sortName: uniqueKeys[0], // Сортировка по первому столбцу
-        sortOrder: 'desc'
+        var table = document.createElement('table');
+        table.id = viewName + '-' + nodeId;
+        div.appendChild(table);
+
+        $('#' + viewName + '-' + nodeId).bootstrapTable({
+            pagination: true,
+            search: true,
+            columns: columns,
+            data: data,
+            sortName: uniqueKeys[0],
+            sortOrder: 'desc'
+        });
     });
 });
