@@ -18,6 +18,7 @@
 package org.apache.ignite.internal.performancestatistics;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -30,9 +31,11 @@ import org.apache.ignite.IgniteException;
 import org.apache.ignite.Ignition;
 import org.apache.ignite.cache.CacheAtomicityMode;
 import org.apache.ignite.cache.QueryEntity;
+import org.apache.ignite.cache.QueryIndex;
 import org.apache.ignite.cache.query.IndexQuery;
 import org.apache.ignite.cache.query.ScanQuery;
 import org.apache.ignite.cache.query.SqlFieldsQuery;
+import org.apache.ignite.cache.store.jdbc.model.Person;
 import org.apache.ignite.cluster.ClusterNode;
 import org.apache.ignite.compute.ComputeJob;
 import org.apache.ignite.compute.ComputeTaskAdapter;
@@ -74,8 +77,23 @@ public class PerformanceStatisticsReportSelfTest {
                 .setDiscoverySpi(new TcpDiscoverySpi().setIpFinder(LOCAL_IP_FINDER))
                 .setClientMode(true))
         ) {
-            client.context().performanceStatistics().startCollectStatistics();
+            for (int i = 0; i < 100; i++) {
+                CacheConfiguration<Long, Person> personCacheCfg = new CacheConfiguration<>();
+                personCacheCfg.setName("Person" + i);
 
+                QueryEntity queryEntity = new QueryEntity(Long.class, Person.class)
+                    .addQueryField("id", Long.class.getName(), null).addQueryField("age", Integer.class.getName(), null)
+                    .addQueryField("salary", Float.class.getName(), null)
+                    .addQueryField("name", String.class.getName(), null);
+
+                queryEntity.setIndexes(Arrays.asList(new QueryIndex("id"), new QueryIndex("salary", false)));
+
+                personCacheCfg.setQueryEntities(Arrays.asList(queryEntity));
+
+                IgniteCache<Long, Person> cache1 = srv.createCache(personCacheCfg);
+                cache1.put(1L, new Person());
+            }
+            client.context().performanceStatistics().startCollectStatistics();
             IgniteCache<Object, Object> cache = client.createCache(new CacheConfiguration<>("cache")
                 .setQueryEntities(F.asList(new QueryEntity()
                     .setKeyType(Integer.class.getName())
@@ -146,7 +164,7 @@ public class PerformanceStatisticsReportSelfTest {
             assertTrue(dataJs.exists());
         }
         finally {
-            U.delete(new File(U.defaultWorkDirectory()));
+//            U.delete(new File(U.defaultWorkDirectory()));
         }
     }
 
